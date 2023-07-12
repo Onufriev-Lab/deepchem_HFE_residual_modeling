@@ -129,7 +129,7 @@ cl_arr = np.arange(120, 180, 4)
 #    for drop in drop_arr:
 for cl in cl_arr:
     #params = {'graph_conv_layers' : [64, 64], 'epochs' : 500, 'dropout' : drop, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'null', 'kfold' : 10, 'dense_layer_size' : dl}
-    params = {'graph_conv_layers' : [cl, cl], 'epochs' : 500, 'dropout' : 0.6, 'batch_normalize' : False,'batch_size'  : 100, 'feat' : 'tip3p', 'kfold' : 10, 'dense_layer_size' : 44}
+    params = {'graph_conv_layers' : [cl, cl], 'epochs' : 500, 'dropout' : 0.6, 'batch_normalize' : False,'batch_size'  : 100, 'feat' : 'tip3p', 'kfold' : 10, 'dense_layer_size' : 27}
     #
     p_true = []
     p_phy = []
@@ -145,6 +145,9 @@ for cl in cl_arr:
         p_corr += pc
         stats += s
     d = {'true' : p_true, 'phy' : p_phy, 'corr' : p_corr, 'stats' : stats, 'params' : params}
+    print('physics model: test',stats[0]['phy_rmsd']['test'],'train',stats[0]['phy_rmsd']['train'])
+    print('physics + ml: test',stats[0]['ml_rmsd']['test'],'train',stats[0]['ml_rmsd']['train'])
+    print()
     #pickle.dump(d, open('HyperExpNull2/' + 'dl_' + str(dl)[:5] + '_dr_' + str(drop)[:5], 'wb'))
     pickle.dump(d, open('HyperExpNull2/' + 'cl_' + str(cl)[:5], 'wb'))
     #pickle.dump(d, open('HyperExp/' + 'dl_' + str(dl) + '_dr_' + str(drop), 'wb'))

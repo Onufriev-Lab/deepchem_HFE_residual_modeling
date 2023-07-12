@@ -152,7 +152,7 @@ def kfinal(params, b = None, val = None):
 
 np.random.seed(10)
 b = list(psuedoScramble(expt, bins=int(len(expt)/10)))
-#params = [{'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'tip3p', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
+# params = [{'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'tip3p', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
 #          {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'gbnsr6', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
 #          {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'igb5', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
 #          {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'asc', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]}]
@@ -164,25 +164,37 @@ b = list(psuedoScramble(expt, bins=int(len(expt)/10)))
 #          {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'gbnsr6', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
 #          {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'igb5', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
 #          {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'asc', 'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]}]
-
+params = [{'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'tip3p', 
+           'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
+         {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'gbnsr6', 
+          'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
+         {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'asc', 
+          'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
+         {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'igb5', 
+          'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
+         {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'zap9', 
+          'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},          
+         {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'cha', 
+          'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]},
+         {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'null', 
+          'kfold' : -1, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32]}]
 val = []
 for i in range(len(b)//8):
     #j = np.random.randint(0, len(b))
     j = i*7
     val.append(b.pop(j))
 
-
 for p in params:
     np.random.seed(10)
-    print(p)
+    # print(p)
+    print(p['feat'])
     p_true, p_phy, p_corr, stats = [], [], [], []
-    for i in range(100):
-        print(i)
+    for i in range(1):
         pt, pp, pc, ps = kfold(p, b, val)
         p_true += pt
         p_phy += pp
         p_corr += pc
-        stats += ps
+        stats = ps
 
     pt, pp, pc = {'test':[], 'train':[], 'valid':[]}, {'test':[], 'train':[], 'valid':[]}, {'test':[], 'train':[], 'valid':[]}
     for i in range(len(p_true)):
@@ -201,20 +213,53 @@ for p in params:
     #    'phy_out_rmsd' : {'test' : [], 'train' : [], 'valid' : []},
     #    'ml_out_rmsd'  : {'test' : [], 'train' : [], 'valid' : []}
     #}
+    
+    print('physics model: test',stats[0]['phy_rmsd']['test'],'train',stats[0]['phy_rmsd']['train'])
+    print('physics + ml: test',stats[0]['ml_rmsd']['test'],'train',stats[0]['ml_rmsd']['train'])
+    print()
+# for p in params:
+#     np.random.seed(10)
+#     print(p)
+#     p_true, p_phy, p_corr, stats = [], [], [], []
+#     for i in range(100):
+#         print(i)
+#         pt, pp, pc, ps = kfold(p, b, val)
+#         p_true += pt
+#         p_phy += pp
+#         p_corr += pc
+#         stats += ps
 
-    for i in stats[0]:
-        s[i] = {}
-        for j in stats[0][i]:
-            s[i][j] = []
+#     pt, pp, pc = {'test':[], 'train':[], 'valid':[]}, {'test':[], 'train':[], 'valid':[]}, {'test':[], 'train':[], 'valid':[]}
+#     for i in range(len(p_true)):
+#         for j in p_true[i]:
+#             pt[j] += p_true[i][j]
+#             pp[j] += p_phy[i][j]
+#             pc[j] += p_corr[i][j]
 
-    for i in stats:
-        for j in i:
-            for k in i[j]:
-                s[j][k].append(i[j][k])
+#     d = {'p_true' : pt, 'p_phy' : pp, 'p_corr' : pc}
 
-    #for j in s:
-    #    for k in s[j]:
-    #        s[j][k] = np.mean(s[j][k])
+#     s = {}
+#     #    'phy_rmsd' :     {'test' : [], 'train' : [], 'valid' : []},
+#     #    'ml_rmsd'  :     {'test' : [], 'train' : [], 'valid' : []},
+#     #    'phy_md' :       {'test' : [], 'train' : [], 'valid' : []},
+#     #    'ml_md'  :       {'test' : [], 'train' : [], 'valid' : []},
+#     #    'phy_out_rmsd' : {'test' : [], 'train' : [], 'valid' : []},
+#     #    'ml_out_rmsd'  : {'test' : [], 'train' : [], 'valid' : []}
+#     #}
 
-    pickle.dump(s, open('runs/final_' + p['feat'] + '_dropout_' + str(p['dropout']) + '_dense_' + str(p['dense_layer_size']), 'wb'))
-    pickle.dump(d, open('runs/final_' + p['feat'] + '_dropout_' + str(p['dropout']) + '_dense_' + str(p['dense_layer_size']) + '_points', 'wb'))
+#     for i in stats[0]:
+#         s[i] = {}
+#         for j in stats[0][i]:
+#             s[i][j] = []
+
+#     for i in stats:
+#         for j in i:
+#             for k in i[j]:
+#                 s[j][k].append(i[j][k])
+
+#     #for j in s:
+#     #    for k in s[j]:
+#     #        s[j][k] = np.mean(s[j][k])
+
+    # pickle.dump(s, open('runs/final_' + p['feat'] + '_dropout_' + str(p['dropout']) + '_dense_' + str(p['dense_layer_size']), 'wb'))
+    # pickle.dump(d, open('runs/final_' + p['feat'] + '_dropout_' + str(p['dropout']) + '_dense_' + str(p['dense_layer_size']) + '_points', 'wb'))
