@@ -6,7 +6,7 @@ from shutil import rmtree
 import_from('4_Kfold', ['pickle', 'psuedoScramble', 'partition', 'load_data', 'dc', 'runExp', 'Kfold', 'kfold'], __name__)
 
 
-default_params = {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'tip3p', 'kfold' : 20, 'dense_layer_size' : 16, 'graph_conv_layers' : [32, 32], 'model_dir' : 'test.model', 'model_dir' : None}
+default_params = {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 100, 'feat' : 'tip3p', 'kfold' : 20, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32], 'model_dir' : 'test.model', 'model_dir' : None}
 
 def get_t1_params():
     params = default_params.copy()
@@ -42,8 +42,8 @@ def t1_results():
     
     for y in range(len(data)):
         for x in range(len(data[y])):
-            if(len(data[y][x]['stats']) != 100):
-                print("missing ", x, y)
+            #if(len(data[y][x]['stats']) != 100):
+            #    print("missing ", x, y)
             for n in range(len(data[y][x]['stats'])):
                 train[y, x] += data[y][x]['stats'][n]['ml_rmsd']['train']
                 valid[y, x] += data[y][x]['stats'][n]['ml_rmsd']['valid']
@@ -56,7 +56,7 @@ def t1_results():
 def get_t2_params():
     params = default_params.copy()
     t2_params = []
-    cl_arr = np.floor(np.power(np.arange(0, 1, 0.1), 1.8)*64)+2
+    cl_arr = np.floor(np.power(np.arange(0, 1, 0.1), 1.8)*128)+2
     for c1 in cl_arr:
         for c2 in cl_arr:
             params['graph_conv_layers'] = [int(c1), int(c2)]
@@ -66,10 +66,10 @@ def load_t2():
     data = []
     for i in range(10):
         data.append([None]*10)
-    cl_arr = np.floor(np.power(np.arange(0, 1, 0.1), 1.8)*64)+2
+    cl_arr = np.floor(np.power(np.arange(0, 1, 0.1), 1.8)*128)+2
     #
     for p in get_t2_params():
-        d = pickle.load(open('hypertests/cl_size/'+gen_dir_name(p)+'/results.pickle', 'rb'))
+        d = pickle.load(open('hypertests/cl_0.3/'+gen_dir_name(p)+'/results.pickle', 'rb'))
         data[np.where(cl_arr == d['stats'][0]['params']['graph_conv_layers'][0])[0][0]][np.where(cl_arr == d['stats'][0]['params']['graph_conv_layers'][1])[0][0]] = d
     #
     return data
@@ -84,8 +84,8 @@ def t2_results():
     #
     for y in range(len(data)):
         for x in range(len(data[y])):
-            if(len(data[y][x]['stats']) != 40):
-                print("missing ", x, y, len(data[y][x]['stats']))
+            #if(len(data[y][x]['stats']) != 40):
+            #    print("missing ", x, y, len(data[y][x]['stats']))
             for n in range(len(data[y][x]['stats'])):
                 train[y, x] += data[y][x]['stats'][n]['ml_rmsd']['train']
                 valid[y, x] += data[y][x]['stats'][n]['ml_rmsd']['valid']
@@ -99,14 +99,14 @@ def gen_dir_name(p):
     return "drop_{dropout:.1f}_dense_{dense_layer_size:.0f}_c1_{graph_conv_layers[0]:.0f}_c2_{graph_conv_layers[1]:.0f}".format(**p)
 
 def lr():
-    ps = os.listdir('hypertests/cl_size/')
+    ps = os.listdir('hypertests/cl_0.3/')
     place=[len(ps)]
     for p in get_t2_params():
         if(gen_dir_name(p) in ps):
             pr = p.copy()
-    ms = np.sort(os.listdir('hypertests/cl_size/'+gen_dir_name(pr)))
+    ms = np.sort(os.listdir('hypertests/cl_0.3/'+gen_dir_name(pr)))
     place.append(len(ms))
-    ks = np.sort(os.listdir('hypertests/cl_size/'+gen_dir_name(pr)+'/'+ms[-1]))
+    ks = np.sort(os.listdir('hypertests/cl_0.3/'+gen_dir_name(pr)+'/'+ms[-1]))
     place.append(len(ks))
     return place
 
@@ -126,16 +126,16 @@ if __name__ == '__main__':
     parent_dir = os.getcwd()
     soft_mkdir('hypertests')
     os.chdir('hypertests')
-    soft_mkdir('cl_size')
-    os.chdir('cl_size')
+    soft_mkdir('dense_dropout')
+    os.chdir('dense_dropout')
     working_dir = os.getcwd()
 
-    for p in get_t2_params():
+    for p in get_t1_params():
         os.chdir(working_dir)
         trial_dir = gen_dir_name(p)
-        #if (os.path.isdir(trial_dir)):
-        #    print("skipped: " + trial_dir)
-        #    continue
+        if (os.path.isdir(trial_dir)):
+            print("skipped: " + trial_dir)
+            continue
         soft_mkdir(trial_dir)
         os.chdir(trial_dir)
 

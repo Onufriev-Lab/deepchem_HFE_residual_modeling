@@ -1,11 +1,11 @@
 
 from utils import *
-import_from('3_ErrorPrediction', ['pickle', 'np', 'psuedoScramble', 'partition', 'load_data', 'dc', 'runExp'], __name__)
+import_from('3_ErrorPrediction', ['pickle', 'psuedoScramble', 'partition', 'load_data', 'dc', 'runExp'], __name__)
 
 class Kfold:
     def __init__(self, data, k, b = None):
         if(type(b) == type(None)):
-            self.b = list(psuedoScramble(data, bins=int(len(data)/k)))
+            self.b = list(psuedoScramble(data, bins=int(len(data)/10)))
         else:
             self.b = b
             
@@ -27,7 +27,16 @@ class Kfold:
             for i in range(len(self.folds)):
                 parts = {'train' : np.hstack(tuple(self.folds[:i])+tuple(self.folds[(i+1):])), 'valid' : self.folds[i], 'test' : self.test}
                 yield partition(parts, *args)
-                
+    
+    def print_split(self, feats):
+        f = open('split.txt', 'w')
+        for i in self.test:
+            f.write(feats['mob'][i] + ', ' + 'test' + '\n')
+        
+        for i in range(len(self.folds)):
+            for j in self.folds[i]:
+                f.write(feats['mob'][j] + ', ' + 'fold-' + str(i) + '\n')
+
 
 def kfold(params, feats, b = None, val = None, final = False, folds = None):
 
@@ -38,8 +47,14 @@ def kfold(params, feats, b = None, val = None, final = False, folds = None):
     p_phy = []
     p_corr = []
     stats = []
+
+    kth = 0
+    model_dir = params['model_dir']
     for k_smiles, k_expt, k_feat in folds.kfolds(feats['smiles'], feats['expt'], feats[params['feat']], final=final):
         
+        if(not final):
+            params['model_dir'] = model_dir + '/k_' + "{:.0f}".format(kth)
+            print(params['model_dir'])
         
         pt, pp, pc, _ = runExp(params, k_smiles, k_expt, k_feat)
 
@@ -61,6 +76,7 @@ def kfold(params, feats, b = None, val = None, final = False, folds = None):
             s['ml_out_rmsd' ][i] = ormsd(0.05,  pt[i], pc[i])
         s['params'] = params
         stats.append(s)
+        kth += 1
 
     return p_true, p_phy, p_corr, stats
 
@@ -68,9 +84,11 @@ def kfold(params, feats, b = None, val = None, final = False, folds = None):
 if __name__ == '__main__':
     params = {'epochs' : 500, 'dropout' : 0.4, 'batch_normalize' : False, 'batch_size' : 1000, 'feat' : 'tip3p', 'kfold' : 20, 'dense_layer_size' : 27, 'graph_conv_layers' : [32, 32], 'model_dir' : 'test.model', 'model_dir' : None}
     feats = load_data()
-
-    np.random.seed(10)
-    b = list(psuedoScramble(feats['expt']))
     
-    pt, pp, pc, s = kfold(params, feats, b=b)
+    np.random.seed(10)
+    folds = Kfold(feats['expt'], 20)
+    folds.print_split(feats)
+    print('partition saved')
+
+    pt, pp, pc, s = kfold(params, feats, folds=folds)
 

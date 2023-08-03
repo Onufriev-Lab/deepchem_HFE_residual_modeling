@@ -10,9 +10,12 @@ This library contains a series of files showing how experiments were prepared, r
 4. K-fold Cross Validation
   - using k-fold cross validation to run multiple experiments and gain a more general understanding of the models preformance on the dataset
 5. Hyperparameter Exploration
-  - running many cross validation experiments to
+  - running many cross validation experiments on the validation set to find the best combination of hyperparameters
+  - manually edit parameter list selection and destination directory
 6. Hyperparameter Evaluation
   - train and store models on final hyperparameters
+7. Graphing
+  - 
 
 
 Folders
@@ -24,4 +27,4 @@ Folders
 MSC
   - consol.pickle - consolidated physics based experiments and FreeSolv dictionary
   - utils.py      - msc utility functions
-  - graphing.py   - graphing utilities
+  - graphutils.py - graphing utilities
