@@ -12,6 +12,7 @@ phy_models = ['tip3p', 'gbnsr6', 'igb5', 'asc', 'null', 'zap9', 'cha']
 def pick_average(models = phy_models):
     picks = {}
     phy_means = {}
+    pick_stats = {}
     for phy in models:
         d = pickle.load(open('tests/'+phy+'/results.pickle', 'rb'))
         d['stats'][0].pop('params')
@@ -25,6 +26,35 @@ def pick_average(models = phy_models):
             for t in means[stat]:
                 means[stat][t] /= len(d['stats'])
         picks[phy] = np.argmin(np.abs(np.subtract([d['stats'][i]['ml_rmsd']['train'] for i in range(len(d['stats']))], means['ml_rmsd']['train'])))
+        pick_stats[phy] = d['stats'][picks[phy]].copy()
+    #
+    print("average stats")
+    for t in means[list(means.keys())[0]].keys():
+        print('#'*10, t, '#'*10)
+        print(' '*15, end='')
+        for phy in models:
+            print((phy+' '*6)[:8], end='')
+        print()
+        for stat in d['stats'][0].keys():
+            print((stat+' '*15)[:15], end='')
+            for phy in models:
+                print('& {:.2f}       '.format(phy_means[phy][stat][t])[:8], end='')
+            print('\n', end='')
+        print('\n\n', end='')
+    #
+    print("pick stats")
+    for t in means[list(means.keys())[0]].keys():
+        print('#'*10, t, '#'*10)
+        print(' '*15, end='')
+        for phy in models:
+            print((phy+' '*6)[:8], end='')
+        print()
+        for stat in d['stats'][0].keys():
+            print((stat+' '*15)[:15], end='')
+            for phy in models:
+                print('& {:.2f}       '.format(pick_stats[phy][stat][t])[:8], end='')
+            print('\n', end='')
+        print('\n\n', end='')
     #
     return phy_means, picks
 

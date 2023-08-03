@@ -201,8 +201,8 @@ def hist2d_svg(a, width = 1000, height = 1000, dif=None, r=[0, 5], k=None, name1
                 g.add_stop(0, colorRamp(a[y, x]), opacity=0.95)
                 g.add_stop(1.5, colorRamp(a[y, x]+0.02), opacity=0.75)
             else:
-                g.add_stop(0, colorRamp(a[y, x]), opacity=0.65)
-                g.add_stop(1.5, colorRamp(a[y, x]+0.02), opacity=0.45)
+                g.add_stop(0, colorRamp(a[y, x]), opacity=0.75)
+                g.add_stop(1.5, colorRamp(a[y, x]+0.02), opacity=0.55)
 
             d.append(draw.Rectangle(x*xi-0.5*sw, y*yi-0.5*sw, xi*1.0+sw, yi*1.0+sw,
             #fill = colorRamp(a[y, x]) ))

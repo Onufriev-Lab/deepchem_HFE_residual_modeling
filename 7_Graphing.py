@@ -26,7 +26,9 @@ dr.set_pixel_scale(2)
 dr.save_svg("test.svg")
 
 
-phy_models = ['tip3p', 'gbnsr6', 'asc', 'igb5', 'cha', 'null']
+#phy_models = ['tip3p', 'gbnsr6', 'asc', 'igb5', 'cha', 'null']
+phy_models = ['tip3p', 'asc', 'cha', 'gbnsr6', 'igb5', 'null']
+
 disp_names = {'tip3p' : 'TIP3P', 'gbnsr6' : 'GBNSR6', 'asc' : 'AASC', 'igb5' : 'IGB5', 'cha' : 'CHA-GB', 'null' : 'null'}
 _, model_indx = pick_average(phy_models)
 
