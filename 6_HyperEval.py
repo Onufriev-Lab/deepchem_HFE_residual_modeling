@@ -12,40 +12,44 @@ phy_models = ['tip3p', 'gbnsr6', 'igb5', 'asc', 'null', 'zap9', 'cha']
 def pick_average(models = phy_models):
     picks = {}
     phy_means = {}
+    phy_stds = {}
     pick_stats = {}
     for phy in models:
         d = pickle.load(open('tests/'+phy+'/results.pickle', 'rb'))
         d['stats'][0].pop('params')
-        means = dict([(stat, dict([(t, 0) for t in d['stats'][0][stat].keys()])) for stat in d['stats'][0].keys()])
+        means = dict([(stat, dict([(t, []) for t in d['stats'][0][stat].keys()])) for stat in d['stats'][0].keys()])
+        stds = dict([(stat, dict([(t, 0) for t in d['stats'][0][stat].keys()])) for stat in d['stats'][0].keys()])
         for i in range(len(d['stats'])):
             for stat in means:
                 for t in means[stat]:
-                    means[stat][t] += d['stats'][i][stat][t]
-        phy_means[phy] = means
+                    means[stat][t] += [d['stats'][i][stat][t]]
         for stat in means:
             for t in means[stat]:
-                means[stat][t] /= len(d['stats'])
+                stds[stat][t] = np.std(means[stat][t])
+                means[stat][t] = np.mean(means[stat][t])
+        phy_means[phy] = means
+        phy_stds [phy] = stds
         picks[phy] = np.argmin(np.abs(np.subtract([d['stats'][i]['ml_rmsd']['train'] for i in range(len(d['stats']))], means['ml_rmsd']['train'])))
         pick_stats[phy] = d['stats'][picks[phy]].copy()
     #
     print("average stats")
     for t in means[list(means.keys())[0]].keys():
         print('#'*10, t, '#'*10)
-        print(' '*15, end='')
+        print(' '*17, end='')
         for phy in models:
-            print((phy+' '*6)[:8], end='')
+            print((phy+' '*20)[:20], end='')
         print()
         for stat in d['stats'][0].keys():
             print((stat+' '*15)[:15], end='')
             for phy in models:
-                print('& {:.2f}       '.format(phy_means[phy][stat][t])[:8], end='')
+                print('& {u:.2f} $\\pm$ {s:.2f}        '.format(u=phy_means[phy][stat][t], s=phy_stds[phy][stat][t])[:20], end='')
             print('\n', end='')
         print('\n\n', end='')
     #
     print("pick stats")
     for t in means[list(means.keys())[0]].keys():
         print('#'*10, t, '#'*10)
-        print(' '*15, end='')
+        print(' '*17, end='')
         for phy in models:
             print((phy+' '*6)[:8], end='')
         print()
