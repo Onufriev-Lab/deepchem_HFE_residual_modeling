@@ -327,10 +327,12 @@ for phy in phy_models:
         m_ml_test.append(i['ml_rmsd']['test'])
         m_phy_train.append(i['phy_rmsd']['train'])
         m_ml_train.append(i['ml_rmsd']['train'])
-    x.append(np.mean(m_phy_test))
-    y.append(np.mean(m_ml_test))
-    xp.append(np.mean(m_phy_train))
-    yp.append(np.mean(m_ml_train))
+    x .append(m_phy_test[int(model_indx[phy])])#np.mean(m_phy_test))
+    y .append(m_ml_test[int(model_indx[phy])])#np.mean(m_ml_test))
+    xp.append(m_phy_train[int(model_indx[phy])])#np.mean(m_phy_train))
+    yp.append(m_ml_train[int(model_indx[phy])])#np.mean())
+
+
 
 bw, bh = 1000, 1000
 w, h = 1500, 1500
