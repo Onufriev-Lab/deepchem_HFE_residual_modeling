@@ -126,26 +126,27 @@ if __name__ == '__main__':
     parent_dir = os.getcwd()
     soft_mkdir('hypertests')
     os.chdir('hypertests')
-    soft_mkdir('dense_dropout')
-    os.chdir('dense_dropout')
+    soft_mkdir('cl_0.3')
+    os.chdir('cl_0.3')
     working_dir = os.getcwd()
 
-    for p in get_t1_params():
+    for p in get_t2_params():
         os.chdir(working_dir)
         trial_dir = gen_dir_name(p)
-        if (os.path.isdir(trial_dir)):
-            print("skipped: " + trial_dir)
-            continue
+        #if (os.path.isdir(trial_dir)):
+        #    print("skipped: " + trial_dir)
+        #    continue
         soft_mkdir(trial_dir)
         os.chdir(trial_dir)
 
         p_true, p_phy, p_corr, stats = [], [], [], []
         if(os.path.isfile('results.pickle')):
+            print("appended " + trial_dir)
             prev = pickle.load(open('results.pickle', 'rb'))
             p_true, p_phy, p_corr, stats = prev['p_true'], prev['p_phy'], prev['p_corr'], prev['stats']
 
 
-        for i in range(2):
+        for i in range(5):
             print(gen_dir_name(p) + " " + str(i))
             p['model_dir'] = 'model_' + str(i)
             if(os.path.isdir(p['model_dir'])):

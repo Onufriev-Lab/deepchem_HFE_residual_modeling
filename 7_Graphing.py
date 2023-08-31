@@ -70,6 +70,7 @@ for phy in phy_models:
         np.vstack((run['p_true'][0]['test'], np.ones(len(run['p_true'][0]['test'])))).T,
         np.matrix(run['p_phy' ][0]['test']).T,
         rcond=None)
+    print(phy + " phy : " + str(np.sqrt(bfit[1][0, 0]/len(run['p_true'][0]['test']))))
     bfit = list(np.asarray(np.matmul(np.vstack((xrd, np.ones(len(xrd)))).T, bfit[0]).T).flatten())
 
     for i in range(0, len(xrd), 2):
@@ -82,8 +83,8 @@ for phy in phy_models:
         np.vstack((run['p_true'][0]['test'], np.ones(len(run['p_true'][0]['test'])))).T,
         np.matrix(run['p_corr' ][0]['test']).T,
         rcond=None)
+    print(phy + " ml  : " + str(np.sqrt(afit[1][0, 0]/len(run['p_true'][0]['test']))))
     afit = list(np.asarray(np.matmul(np.vstack((xrd, np.ones(len(xrd)))).T, afit[0]).T).flatten())
-
 
     for i in range(0, len(xrd), 2):
         if(afit[i] > yr[0] and afit[i] < yr[1] and afit[i+1] > yr[0] and afit[i+1] < yr[1]):
@@ -263,16 +264,22 @@ w, h = 1500, 1500
 bw, bh = 1000, 1000
 con = draw.Drawing(w, h)
 con.append(draw.Rectangle(-100, -100, w+200, h+200, fill=get_bgc()))
+e_epochs = 1000
 
-conv = pd.read_fwf("tests/convergence_log.txt", header=None).to_numpy()
-xr = [-2, 502]
+conv = pd.read_fwf("tests/tip3p/convergence_log.txt", header=None).to_numpy()
+for i in range(conv.shape[0]):
+    if('e' in conv[i][1]):
+        conv[i][1] = '0'
+conv[:, 1] = np.array(conv[:, 1], float)
+xr = [-2, e_epochs]
 yr = [0, 2]
-con.append(draw.Use(trim_svg(xr, yr, width=bw, height=bh, title=disp_names['tip3p'] + ' training convergence', xticks=3, yticks=3, xlabel='epochs', ylabel='loss'
+con.append(draw.Use(trim_svg(xr, yr, width=bw, height=bh, title=disp_names['tip3p'] + ' training convergence', xticks=3, yticks=3, xlabel='epochs', ylabel='loss', ygs=1
 ), (w-bw)/2, (h-bh)/2))
 
-for i in range(int(conv.shape[0]/500)):
-    epoch = list(conv[500*(i  ):500*(i+1),0])
-    loss  = list(np.clip(conv[500*(i  ):500*(i+1),1], yr[0], yr[1]))
+
+for i in range(int(conv.shape[0]/e_epochs)):
+    epoch = list(conv[e_epochs*(i  ):e_epochs*(i+1):6,0])
+    loss  = list(np.clip(conv[e_epochs*(i  ):e_epochs*(i+1):6,1], yr[0], yr[1]))
     con.append(draw.Use(plot_svg(epoch, loss, xr=xr, yr=yr, width=bw, height=bh, s_scale=0.1, alpha=0.2, stroke=post_fill), (w-bw)/2, (h-bh)/2))
 
 con.set_pixel_scale(2)
@@ -327,12 +334,10 @@ for phy in phy_models:
         m_ml_test.append(i['ml_rmsd']['test'])
         m_phy_train.append(i['phy_rmsd']['train'])
         m_ml_train.append(i['ml_rmsd']['train'])
-    x .append(m_phy_test[int(model_indx[phy])])#np.mean(m_phy_test))
-    y .append(m_ml_test[int(model_indx[phy])])#np.mean(m_ml_test))
-    xp.append(m_phy_train[int(model_indx[phy])])#np.mean(m_phy_train))
-    yp.append(m_ml_train[int(model_indx[phy])])#np.mean())
-
-
+    x.append(np.mean(m_phy_test))
+    y.append(np.mean(m_ml_test))
+    xp.append(np.mean(m_phy_train))
+    yp.append(np.mean(m_ml_train))
 
 bw, bh = 1000, 1000
 w, h = 1500, 1500
